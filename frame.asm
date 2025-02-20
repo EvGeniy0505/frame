@@ -5,8 +5,8 @@ model tiny
 org 100h
 
 VIDEO_SEGMENT_ADR       equ 0b800h
-FRAME_LENGTH            equ 8
-FRAME_WIDTH             equ 4 
+FRAME_LENGTH            equ 10
+FRAME_WIDTH             equ 8 
 
 start:                  push    VIDEO_SEGMENT_ADR
                         pop     es
@@ -33,14 +33,34 @@ start:                  push    VIDEO_SEGMENT_ADR
                         mov     si, offset frame_template
                         mov     cx, FRAME_LENGTH
                         call    first_and_last_line
+                        ;--------------text-----------------------
+
+                        add     di, (5 * 80 + 10) * WORD
+                        div     di, 2
                         
-                        mov     di, (5 * 80 + 10) * WORD + 80 * FRAME_WIDTH * WORD
-                        mov     ah, 09h
-                        mov     dx, offset text
-                        int     21h
+                        mov     ah, 52
+                        mov     si, offset text
+
+                        ;добавить длину строки
+                        
+                        call draw_text
+
+                        ;--------------text-----------------------
 
                         mov     ah, 4ch
                         int     21h
+
+string_lenth            lodsb
+                        cmp al
+
+
+draw_text               proc
+
+                        lodsb
+                        stosw
+                        
+
+                        endp
 
 first_and_last_line     proc
                         
