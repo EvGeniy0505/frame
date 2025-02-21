@@ -70,17 +70,22 @@ start:                  push    VIDEO_SEGMENT_ADR
 
                         mov     si, offset text
                         
-string_lenth:           lodsb
-                        cmp     al, 0
-                        je      ready_length
-                        inc     cl
-                        jmp     string_lenth
+;string_lenth:           lodsb
+;                        cmp     al, 0
+;                        je      ready_length
+;                        inc     cx
+;                        jmp     string_lenth
 
-ready_length:           mov     di, FRAME_LENGTH + FRAME_WIDTH * 80 + (5 * 80 + 10) * WORD
-                        sub     di, cx                        
+;ready_length:           
+                        mov     di, FRAME_LENGTH + FRAME_WIDTH * 80 + (5 * 80 + 10) * WORD
+                        
+                        mov     cx, str_length
+                        cmp     cx, 1
+                        je      one_symbol      
 
-                        mov     si, offset text
+                        sub     di, str_length      ; не делю на 2, тк клеточка - 2 байта
 
+one_symbol:
                         call    draw_text
 
                         mov     ah, 4ch
@@ -91,7 +96,7 @@ ready_length:           mov     di, FRAME_LENGTH + FRAME_WIDTH * 80 + (5 * 80 + 
 ; Input:    di = begining of string
 ;           cx = strlen 
 ; Destroys: ah, cx, si, di 
-; Returns:  cpy str 
+; Returns:  nothing 
 ;----------------------------------------------
 draw_text               proc
 
@@ -128,9 +133,9 @@ draw_line               proc
                         mov     ah, 1
                         lodsb
                         repne   stosw
-
+                        
                         mov     ah, 52                
-                        lodsb
+                        lodsb   
                         stosw
                         
                         mov     si, offset frame_template
@@ -148,6 +153,6 @@ draw_line               proc
 .data
 
 frame_template          db      3,32,3   
-text                    db      "edik pidr"
-
+text                    db      "eDICK pidr"
+str_length              equ $-text
 end start
